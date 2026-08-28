@@ -34,8 +34,8 @@ jobs:
     # 兼容误将 STOCK_LIST 配到同名 Environment variables 的场景；
     # 推荐位置仍是 Settings -> Secrets and variables -> Actions -> Repository variables。
     environment: STOCK_LIST
-    # 添加超时限制，防止任务卡死
-    timeout-minutes: ${{ fromJSON(vars.ANALYSIS_TIMEOUT_MINUTES || '30') }}
+    # 添加超时限制，防止任务卡死（默认 360 分钟，可通过仓库变量 ANALYSIS_TIMEOUT_MINUTES 覆盖）
+    timeout-minutes: ${{ fromJSON(vars.ANALYSIS_TIMEOUT_MINUTES || '360') }}
     
     steps:
       - name: 随机延迟（避免固定时间访问）
@@ -280,6 +280,14 @@ jobs:
           TICKFLOW_KLINE_ADJUST: ${{ vars.TICKFLOW_KLINE_ADJUST || secrets.TICKFLOW_KLINE_ADJUST }}
           TICKFLOW_BATCH_DAILY_ENABLED: ${{ vars.TICKFLOW_BATCH_DAILY_ENABLED || secrets.TICKFLOW_BATCH_DAILY_ENABLED }}
           TICKFLOW_BATCH_SIZE: ${{ vars.TICKFLOW_BATCH_SIZE || secrets.TICKFLOW_BATCH_SIZE }}
+          # 免费日 K 数据源优先级（数值越小越优先；efinance/akshare/pytdx/baostock 默认 0/1/2/3）
+          # GitHub 托管 runner 位于美国，东财(efinance)从海外访问容易超时被限流；
+          # 可按需设置 EFINANCE_PRIORITY=99 让 akshare/pytdx/baostock 先试，提高一次成功率
+          EFINANCE_PRIORITY: ${{ vars.EFINANCE_PRIORITY || secrets.EFINANCE_PRIORITY }}
+          AKSHARE_PRIORITY: ${{ vars.AKSHARE_PRIORITY || secrets.AKSHARE_PRIORITY }}
+          PYTDX_PRIORITY: ${{ vars.PYTDX_PRIORITY || secrets.PYTDX_PRIORITY }}
+          BAOSTOCK_PRIORITY: ${{ vars.BAOSTOCK_PRIORITY || secrets.BAOSTOCK_PRIORITY }}
+          TUSHARE_PRIORITY: ${{ vars.TUSHARE_PRIORITY || secrets.TUSHARE_PRIORITY }}
           # Longbridge OpenAPI（美股/港股实时行情字段补充；不设则仅 YFinance/AkShare，无 [Longbridge] 调用）
           LONGBRIDGE_OAUTH_CLIENT_ID: ${{ vars.LONGBRIDGE_OAUTH_CLIENT_ID || secrets.LONGBRIDGE_OAUTH_CLIENT_ID }}
           LONGBRIDGE_OAUTH_TOKEN_CACHE_B64: ${{ secrets.LONGBRIDGE_OAUTH_TOKEN_CACHE_B64 }}
@@ -477,6 +485,7 @@ jobs:
           echo "【数据源】"
           echo "  Tushare Token: $([ -n "$TUSHARE_TOKEN" ] && echo '✅ 已配置' || echo '⚪ 未配置')"
           echo "  TickFlow:      $([ -n "$TICKFLOW_API_KEY" ] && echo '✅ 已配置' || echo '⚪ 未配置')"
+          echo "  日K优先级: efinance=${EFINANCE_PRIORITY:-0} akshare=${AKSHARE_PRIORITY:-1} pytdx=${PYTDX_PRIORITY:-2} tushare=${TUSHARE_PRIORITY:-2} baostock=${BAOSTOCK_PRIORITY:-3}"
           if [ -n "$LONGBRIDGE_APP_KEY" ] && [ -n "$LONGBRIDGE_APP_SECRET" ] && [ -n "$LONGBRIDGE_ACCESS_TOKEN" ]; then
             echo "  Longbridge: ✅ 已配置（Legacy API Key）"
           elif [ -n "$LONGBRIDGE_OAUTH_CLIENT_ID" ] || { [ -n "$LONGBRIDGE_APP_KEY" ] && [ -z "$LONGBRIDGE_ACCESS_TOKEN" ]; }; then
