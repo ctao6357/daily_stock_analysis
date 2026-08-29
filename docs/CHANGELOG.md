@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - [修复] 收敛已登记 CSI 显式身份在 resolver、任务去重键与历史候选中的分裂：`csi930955`/`930955.CSI`/`CSI930955` 统一解析为 parser canonical `csi930955`，未登记 `csi930956`/`930956.CSI` 保持既有降级语义；`is_code_like()`、REST/watchlist 输入边界与完整 Pipeline 透传不变。
 - [修复] 阻止任意更新的非 bundled 指数候选（含 legacy `static` 子集）在 remote 缺失/损坏时以 active-index 子集覆盖 bundled baseline：所有非 bundled 候选必须为 bundled active-index canonical 集合的合法超集，否则回退 bundled 并记录 WARNING。
 - [改进] 每日分析工作流默认超时上限提高到 360 分钟，并透传日 K 数据源优先级 env（EFINANCE_PRIORITY/AKSHARE_PRIORITY/PYTDX_PRIORITY/BAOSTOCK_PRIORITY/TUSHARE_PRIORITY）与启动日志展示，便于在 GitHub 托管 runner 上调整数据源顺序、减少失败重试。
+- [修复] 修复 GitHub Actions 未配置变量时透传空字符串导致日 K 数据源优先级解析崩溃（`int('')` ValueError）：efinance/akshare/pytdx/baostock/tushare 的优先级 env 为空时回退到各自默认值，不再影响启动。
 - [新功能] 桌面端全局右上角增加更新入口，与设置页共用更新状态；普通浏览器 WebUI 不展示，且不会在挂载时重复触发后台检查。
 - [修复] 桌面端右上角更新入口与设置页共用检查中状态，避免一侧检查时另一侧仍可重复触发 GitHub Releases 检查；主进程手动检查路径同步增加 in-flight 防重。
 

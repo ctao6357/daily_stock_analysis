@@ -115,7 +115,7 @@ class PytdxFetcher(BaseFetcher):
     """
     
     name = "PytdxFetcher"
-    priority = int(os.getenv("PYTDX_PRIORITY", "2"))
+    priority = int(os.getenv("PYTDX_PRIORITY") or "2")
     
     # 默认通达信行情服务器列表
     DEFAULT_HOSTS = [

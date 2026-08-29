@@ -414,7 +414,7 @@ class AkshareFetcher(BaseFetcher):
     """
     
     name = "AkshareFetcher"
-    priority = int(os.getenv("AKSHARE_PRIORITY", "1"))
+    priority = int(os.getenv("AKSHARE_PRIORITY") or "1")
     
     def __init__(self, sleep_min: float = 2.0, sleep_max: float = 5.0):
         """
